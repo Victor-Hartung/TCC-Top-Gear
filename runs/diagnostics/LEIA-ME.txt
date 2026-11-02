@@ -1,0 +1,2 @@
+Saidas dos novos diagnosticos Lua. Cada coleta usa um nome unico.
+Nao execute diagnostico_contexto.lua junto da ponte principal.

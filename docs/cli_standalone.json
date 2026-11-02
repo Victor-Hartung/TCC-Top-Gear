@@ -1,0 +1,38 @@
+[
+  {
+    "script": "train_hermes_ppo",
+    "exit_code": 0
+  },
+  {
+    "script": "avaliar_modelo",
+    "exit_code": 0
+  },
+  {
+    "script": "smoke_test_env",
+    "exit_code": 0
+  },
+  {
+    "script": "test_connection",
+    "exit_code": 0
+  },
+  {
+    "script": "preflight_live",
+    "exit_code": 0
+  },
+  {
+    "script": "replay_rewards",
+    "exit_code": 0
+  },
+  {
+    "script": "audit_evidence",
+    "exit_code": 0
+  },
+  {
+    "script": "analyze_context",
+    "exit_code": 0
+  },
+  {
+    "script": "promote_model",
+    "exit_code": 0
+  }
+]

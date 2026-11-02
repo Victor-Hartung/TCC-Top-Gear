@@ -1,0 +1,22 @@
+{
+  "status": "completed",
+  "output": "D:\\TCC-2.0\\TCC-TopGear-RL_v3.0\\runs\\diagnostics\\comparacao_ppo_676175_902235_20261011",
+  "launcher_pid": 3536,
+  "worker_pid": 2488,
+  "emulator_pid": 15008,
+  "worker_exit": 0,
+  "emulator_exit": 1,
+  "config_restored": true,
+  "preserved_files": {
+    "D:\\TCC-2.0\\TCC-TopGear-RL_v3.0\\models\\hermes-ppo_20261008_144554_963309\\final_676175_steps.zip": true,
+    "D:\\TCC-2.0\\TCC-TopGear-RL_v3.0\\models\\hermes-ppo_20261008_152630_003921\\interrupted_902235_steps.zip": true,
+    "D:\\TCC-2.0\\TCC-TopGear-RL_v3.0\\models\\hermes-ppo_20261008_144554_963309\\final_676175_steps.zip.json": true,
+    "D:\\TCC-2.0\\TCC-TopGear-RL_v3.0\\models\\hermes-ppo_20261008_152630_003921\\interrupted_902235_steps.zip.json": true,
+    "D:\\TCC-2.0\\TCC-TopGear-RL_v3.0\\models\\hermes-ppo.zip": true,
+    "D:\\TCC-2.0\\TCC-TopGear-RL_v3.0\\models\\hermes-ppo.zip.json": true,
+    "D:\\TCC-2.0\\TCC-TopGear-RL_v3.0\\config\\game_profile_blue_auto.ini": true,
+    "D:\\TCC-2.0\\TCC-TopGear-RL_v3.0\\assets\\rom\\Top-Gear-USA.sfc": true,
+    "D:\\TCC-2.0\\TCC-TopGear-RL_v3.0\\emulator\\BizHawk-2.11.1-win-x64\\SNES\\State\\Top Gear (USA).BSNESv115+.QuickSave3.State": true
+  },
+  "source_code_unchanged": true
+}

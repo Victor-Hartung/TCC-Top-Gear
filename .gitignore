@@ -1,0 +1,28 @@
+# ROM e emulador: manter localmente, fora do GitHub
+assets/rom/
+emulator/
+
+# Recriar o ambiente Python em cada computador; nao copiar .venv
+.venv/
+__pycache__/
+*.py[cod]
+*.tmp
+*.writing.zip
+.pytest_cache/
+
+# Manter somente os tres modelos finais e seus contratos
+models/*
+!models/apolo.zip
+!models/apolo.zip.json
+!models/ares.zip
+!models/ares.zip.json
+!models/hermes-ppo-3.zip
+!models/hermes-ppo-3.zip.json
+
+# Logs detalhados de execucao ficam locais; runs/ contem ~82.7 GiB
+runs/*
+!runs/diagnostics/
+!runs/diagnostics/LEIA-ME.txt
+
+# Snapshot local de v2 contem um modelo legado, fora dos tres modelos finais publicados.
+archive/source/TCC-TopGear-RL_v2.0.28-surface-fallback.zip

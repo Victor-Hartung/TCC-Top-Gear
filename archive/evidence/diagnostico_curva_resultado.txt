@@ -1,0 +1,42 @@
+DIAGNÓSTICO DE CURVA — RESULTADO PRELIMINAR
+
+Arquivo: diagnostico_curva.csv
+Capturas: reta=6, esquerda=6, direita=0
+
+Valores por rótulo e distância:
+  curve_0:
+    straight: mínimo=-7944, mediana=0, máximo=16, valores=-7944,0,0,0,8,16
+    left: mínimo=-1, mediana=0, máximo=255, valores=-1,0,0,0,0,255
+    right: sem amostras nesta pista
+  curve_256:
+    straight: mínimo=-7940, mediana=0, máximo=32, valores=-7940,-1,0,0,16,32
+    left: mínimo=-16160, mediana=0, máximo=15935, valores=-16160,0,0,0,0,15935
+    right: sem amostras nesta pista
+  curve_512:
+    straight: mínimo=-1793, mediana=0, máximo=16, valores=-1793,-257,0,0,0,16
+    left: mínimo=0, mediana=0, máximo=4, valores=0,0,0,0,0,4
+    right: sem amostras nesta pista
+  curve_1024:
+    straight: mínimo=0, mediana=0, máximo=16, valores=0,0,0,0,0,16
+    left: mínimo=0, mediana=12, máximo=1991, valores=0,0,0,24,771,1991
+    right: sem amostras nesta pista
+  curve_2048:
+    straight: mínimo=0, mediana=0, máximo=16, valores=0,0,0,0,16,16
+    left: mínimo=-28673, mediana=1.5, máximo=248, valores=-28673,-1794,-1,4,24,248
+    right: sem amostras nesta pista
+
+Melhor separação automática por distância:
+  curve_1024: 9/12 (75.0%); reta se |valor| <= 16; positivo=left; negativo=right
+  curve_2048: 8/12 (66.7%); reta se |valor| <= 16; positivo=left; negativo=right
+  curve_256: 7/12 (58.3%); reta se |valor| <= 7940; positivo=left; negativo=right
+  curve_0: 6/12 (50.0%); reta se |valor| <= 16; positivo=left; negativo=right
+  curve_512: 6/12 (50.0%); reta se |valor| <= 1793; positivo=left; negativo=right
+
+Interpretação obrigatória:
+  O resultado mede correlação com os rótulos visuais desta pista.
+  A ROM comprova que 0x4C00 é indexado pelo progresso e participa da
+  atualização lateral, mas esta coleta ainda deve confirmar sinal e
+  distância útil de antecipação antes da integração na observação.
+  Melhor candidato desta captura: curve_1024, score=75.0%.
+  Cobertura direcional incompleta: right
+  Não altere curve_telemetry_validated manualmente.

@@ -1,0 +1,31 @@
+DIAGNOSTICO DE SUPERFICIE — RESULTADO
+
+Arquivo: diagnostico_superficie.csv
+Frames: 3600 (4835..8434), lacunas=0
+Divergencias entre 0x0727 e 0x0A67/buffers: 131
+Valores do candidato: 0=487, 1=2665, 2=448
+
+Transicoes relevantes:
+  road_to_left: 5
+    lateral minimo=-11515, mediana=-11232, maximo=-10954
+    frames=5434,6652,7597,7999,8346
+  left_to_road: 5
+    lateral minimo=-10827, mediana=-10552, maximo=-10228
+    frames=5626,6772,7717,8047,8353
+  road_to_right: 4
+    lateral minimo=11211, mediana=11334, maximo=13315
+    frames=5824,6226,7165,8407
+  right_to_road: 3
+    lateral minimo=10427, mediana=10529, maximo=10796
+    frames=5950,6274,7411
+  outras: 0
+
+Validacao automatica:
+  frames_consecutivos=SIM
+  espelhos_identicos=NAO
+  somente_valores_0_1_2=SIM
+  transicoes_suficientes_nos_dois_lados=SIM
+
+Ainda obrigatorio informar visualmente:
+  O texto PISTA/FORA ESQUERDA/FORA DIREITA mudou exatamente quando o carro
+  cruzou cada borda? A aprovacao final depende dessa resposta e do CSV.

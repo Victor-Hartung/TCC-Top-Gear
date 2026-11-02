@@ -1,0 +1,39 @@
+DIAGNÓSTICO DO MAPA COMPLETO DE CURVAS
+
+Arquivo: diagnostico_mapa_curvas.csv
+Comprimento da pista: 22528
+Entradas exportadas: 1408 (uma a cada 16 unidades)
+Coeficiente s8 baixo: mínimo=-128, mediana=0, máximo=127
+Entradas: zero=898, positivas=385, negativas=125, valores distintos=39
+Sequências brutas não zero: 27
+
+Maiores sequências brutas não zero:
+  índices 129..254; progresso 2064..4079; entradas=126; soma=1968; faixa=4..16
+  índices 449..542; progresso 7184..8687; entradas=94; soma=2144; faixa=4..24
+  índices 641..702; progresso 10256..11247; entradas=62; soma=944; faixa=4..16
+  índices 1104..1135; progresso 17664..18175; entradas=32; soma=-93; faixa=-97..127
+  índices 545..574; progresso 8720..9199; entradas=30; soma=768; faixa=4..32
+  índices 1232..1252; progresso 19712..20047; entradas=21; soma=-205; faixa=-128..63
+  índices 1183..1200; progresso 18928..19215; entradas=18; soma=-140; faixa=-128..127
+  índices 1163..1177; progresso 18608..18847; entradas=15; soma=320; faixa=-64..124
+  índices 776..789; progresso 12416..12639; entradas=14; soma=183; faixa=-128..127
+  índices 798..807; progresso 12768..12927; entradas=10; soma=553; faixa=-8..126
+  índices 840..846; progresso 13440..13551; entradas=7; soma=303; faixa=1..126
+  índices 1033..1039; progresso 16528..16639; entradas=7; soma=84; faixa=-16..127
+  índices 1049..1055; progresso 16784..16895; entradas=7; soma=111; faixa=-1..115
+  índices 1096..1102; progresso 17536..17647; entradas=7; soma=206; faixa=-16..126
+  índices 1153..1159; progresso 18448..18559; entradas=7; soma=174; faixa=-8..127
+  índices 1224..1230; progresso 19584..19695; entradas=7; soma=-85; faixa=-121..63
+  índices 849..854; progresso 13584..13679; entradas=6; soma=7; faixa=-4..15
+  índices 856..861; progresso 13696..13791; entradas=6; soma=91; faixa=-32..127
+  índices 1058..1063; progresso 16928..17023; entradas=6; soma=-247; faixa=-128..-1
+  índices 1027..1031; progresso 16432..16511; entradas=5; soma=5; faixa=1..1
+
+Interpretação:
+  Esta exportação contém toda a tabela ativa de Las Vegas, sem
+  depender da velocidade, do foco da janela ou de pontos pulados.
+  O byte baixo é separado do word porque é o byte entregue ao
+  multiplicador na rotina localizada na ROM.
+  A direção e os limites finais das curvas só serão promovidos à
+  observação após confrontar as regiões da tabela com a pista.
+  Não altere curve_telemetry_validated manualmente.

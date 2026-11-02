@@ -1,0 +1,11 @@
+# Dependencias opcionais de graficos, instaladas na .venv local.
+# Nao alteram numpy, torch, SB3 nem os hiperparametros.
+-c constraints.txt
+matplotlib==3.10.8
+contourpy==1.3.3
+cycler==0.12.1
+fonttools==4.65.0
+kiwisolver==1.5.1
+pyparsing==3.3.2
+python-dateutil==2.9.0.post0
+six==1.17.0
