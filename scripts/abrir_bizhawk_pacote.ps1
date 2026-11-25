@@ -32,4 +32,10 @@ if ((Test-Path -LiteralPath $targetSave) -and
 }
 Copy-Item -LiteralPath $sourceSave -Destination $targetSave -Force
 Write-Host 'O servidor Python precisa estar aguardando antes de abrir o emulador.'
-Start-Process -FilePath $emulatorExe -WorkingDirectory $emulatorDir -ArgumentList $emulatorArgs -WindowStyle Normal
+$previousProjectRoot = $env:TOPGEAR_PROJECT_ROOT
+try {
+    $env:TOPGEAR_PROJECT_ROOT = $projectRoot.Replace('\', '/')
+    Start-Process -FilePath $emulatorExe -WorkingDirectory $emulatorDir -ArgumentList $emulatorArgs -WindowStyle Normal
+} finally {
+    $env:TOPGEAR_PROJECT_ROOT = $previousProjectRoot
+}
