@@ -23,9 +23,11 @@ from transition_errors import LapSentinelRegression
 
 EXPLORATION_DECAY_STEPS = 200_000
 REPLAY_BUFFER_DIRECTORY = Path("models") / "apolo-replay-buffers"
+APOLO_BRAIN_NAMES = ("apolo", "apolo-v2")
+LAUNCH_LAP_SKIP_ERROR = "Largada saltou a primeira volta"
 RECOVERY_POLICY = {
-    "version": 1,
-    "error": "LapSentinelRegression",
+    "version": 2,
+    "errors": ["LapSentinelRegression", LAUNCH_LAP_SKIP_ERROR],
     "strategy": "keep_valid_replay_transitions_mark_episode_boundary_and_reset_savestate",
     "max_recoveries": 3,
     "window_steps": 10_000,
@@ -106,7 +108,7 @@ def attach_exploration_schedule(model: DQN, steps_this_run: int) -> None:
 
 
 class ApoloDQN(DQN):
-    """DQN with bounded recovery for the project's rejected lap-sentinel sample."""
+    """DQN with bounded recovery for rejected lap transitions."""
 
     def configure_recovery(self, directory: Path) -> None:
         self._recovery_dir = Path(directory)
@@ -141,7 +143,16 @@ class ApoloDQN(DQN):
                     learning_starts=learning_starts,
                     log_interval=log_interval,
                 )
-            except LapSentinelRegression as exc:
+            except ProtocolError as exc:
+                if isinstance(exc, LapSentinelRegression):
+                    event = "lap_sentinel_recovery"
+                    diagnostic = exc.diagnostic
+                elif type(exc) is ProtocolError and exc.args == (LAUNCH_LAP_SKIP_ERROR,):
+                    # TopGearEnv currently raises a plain ProtocolError for this rejected step.
+                    event = "launch_lap_skip_recovery"
+                    diagnostic = {"kind": "launch_lap_skip", "error": str(exc)}
+                else:
+                    raise
                 if env.num_envs != 1 or not hasattr(self, "_recovery_dir"):
                     raise
                 now = int(self.num_timesteps)
@@ -162,10 +173,10 @@ class ApoloDQN(DQN):
                     boundary_marked = True
                 self.invalid_transitions += 1
                 record = {
-                    "event": "lap_sentinel_recovery",
+                    "event": event,
                     "num_timesteps": now,
                     "policy": RECOVERY_POLICY,
-                    "diagnostic": exc.diagnostic,
+                    "diagnostic": diagnostic,
                     "invalid_transition_stored": False,
                     "accepted_transitions_kept": accepted,
                     "last_transition_marked_terminal": boundary_marked,
@@ -175,7 +186,7 @@ class ApoloDQN(DQN):
                 atomic_json(path, record)
                 if not allowed:
                     raise ProtocolError(
-                        "Regressao de lap repetida: limite de 3 recuperacoes em 10000 passos; "
+                        "Erros de volta repetidos: limite de 3 recuperacoes em 10000 passos; "
                         "diagnostico: " + str(path)
                     ) from exc
                 self._recovery_steps.append(now)
@@ -198,8 +209,15 @@ class ApoloDQN(DQN):
                 self.logger.record("recovery/invalid_transitions", self.invalid_transitions)
 
 
-def save_replay_buffer_snapshot(model: DQN, project_root: Path, run: str) -> dict:
-    directory = project_root / REPLAY_BUFFER_DIRECTORY
+def replay_buffer_directory(brain_name: str) -> Path:
+    if brain_name not in APOLO_BRAIN_NAMES:
+        raise ValueError(f"Cerebro DQN desconhecido: {brain_name}")
+    return REPLAY_BUFFER_DIRECTORY.with_name(f"{brain_name}-replay-buffers")
+
+
+def save_replay_buffer_snapshot(model: DQN, project_root: Path, run: str, *,
+                                brain_name: str = "apolo") -> dict:
+    directory = project_root / replay_buffer_directory(brain_name)
     directory.mkdir(parents=True, exist_ok=True)
     step = int(model.num_timesteps)
     descriptor, temporary_name = tempfile.mkstemp(
@@ -210,7 +228,7 @@ def save_replay_buffer_snapshot(model: DQN, project_root: Path, run: str) -> dic
     try:
         model.save_replay_buffer(str(temporary))
         digest = sha256(temporary)
-        filename = f"apolo_{step}_{digest[:16]}.pkl"
+        filename = f"{brain_name}_{step}_{digest[:16]}.pkl"
         destination = directory / filename
         if destination.exists():
             temporary.unlink()
@@ -266,8 +284,8 @@ def save_dqn_checkpoint(model: DQN, path: Path, expected: dict, *, run: str,
 
 
 def cleanup_replay_buffer_snapshots(project_root: Path, brain) -> None:
-    """Keep only buffers referenced by the current and rollback model pair."""
-    directory = project_root / REPLAY_BUFFER_DIRECTORY
+    """Keep the selected brain's current and rollback replay buffers."""
+    directory = project_root / replay_buffer_directory(brain.name)
     if not directory.is_dir():
         return
     keep: set[Path] = set()
@@ -286,7 +304,7 @@ def cleanup_replay_buffer_snapshots(project_root: Path, brain) -> None:
                     keep.add(candidate)
         except (OSError, ValueError, json.JSONDecodeError):
             continue
-    for path in directory.glob("apolo_*.pkl"):
+    for path in directory.glob(f"{brain.name}_*.pkl"):
         if path.resolve() not in keep:
             path.unlink(missing_ok=True)
 
@@ -331,7 +349,7 @@ class ApoloDQNCallback(RaceMetricsCallback):
         if self.model._update_interrupted:
             return False
         reference = reference or save_replay_buffer_snapshot(
-            self.model, self.project_root, self.run
+            self.model, self.project_root, self.run, brain_name=self.brain.name
         )
         provenance = self._provenance_with_buffer(reference)
         path = final_path or save_dqn_checkpoint(

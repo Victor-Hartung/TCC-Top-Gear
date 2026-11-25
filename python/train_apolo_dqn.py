@@ -9,7 +9,8 @@ import torch
 from stable_baselines3.common.env_checker import check_env
 from stable_baselines3.common.monitor import Monitor
 
-from apolo_dqn import (ApoloDQN, ApoloDQNCallback, DQNProgressCallback,
+from apolo_dqn import (APOLO_BRAIN_NAMES, RECOVERY_POLICY, ApoloDQN, ApoloDQNCallback,
+                       DQNProgressCallback,
                        attach_exploration_schedule, dqn_contract, dqn_options,
                        dqn_policy_kwargs, load_replay_buffer_snapshot,
                        save_dqn_checkpoint, save_replay_buffer_snapshot)
@@ -25,12 +26,14 @@ from topgear_config import ProjectConfig
 
 def arguments():
     parser = argparse.ArgumentParser(
-        description="Treina o cerebro Apolo do zero; depois retoma somente o Apolo DQN."
+        description="Treina o Apolo DQN ou retoma a sua copia Apolo v2."
     )
     parser.add_argument("--timesteps", type=int, default=1_000_000,
                         help="Passos adicionais nesta execucao (padrao: 1 milhao)")
     parser.add_argument("--checkpoint-every", type=int, default=25_000,
                         help="Intervalo de publicacao segura do modelo e replay buffer")
+    parser.add_argument("--named-brain", choices=APOLO_BRAIN_NAMES, default="apolo",
+                        help="Cerebro DQN que sera atualizado (padrao: apolo)")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--no-step-log", action="store_true",
                         help="Desativa somente o log JSONL por decisao")
@@ -57,7 +60,8 @@ def train(args, cfg: ProjectConfig):
     expected = dqn_contract(cfg)
     torch.set_num_threads(cfg.integer("ppo", "torch_threads"))
 
-    run = unique_name("apolo-dqn")
+    brain_name = args.named_brain
+    run = unique_name(f"{brain_name}-dqn")
     run_dir = cfg.project_dir / "runs" / run
     model_dir = cfg.project_dir / "models" / run
     run_dir.mkdir(parents=True, exist_ok=False)
@@ -68,13 +72,7 @@ def train(args, cfg: ProjectConfig):
         "source_hashes": source_hashes(cfg.project_dir),
         "preflight": preflight_reference(run_dir, receipt),
         "environment": environment_versions(),
-        "training_recovery": {
-            "version": 1,
-            "error": "LapSentinelRegression",
-            "strategy": "valid replay transitions retained; last transition terminalized; savestate reset",
-            "max_recoveries": 3,
-            "window_steps": 10_000,
-        },
+        "training_recovery": RECOVERY_POLICY,
     }
     shutil.copy2(cfg.path, run_dir / "game_profile.ini")
     for filename in ("requirements.txt", "requirements-dev.txt", "constraints.txt", "VERSION.txt"):
@@ -87,8 +85,10 @@ def train(args, cfg: ProjectConfig):
     saved_path = None
     buffer_reference = None
 
-    with NamedBrain(cfg.project_dir, "apolo", expected) as brain:
+    with NamedBrain(cfg.project_dir, brain_name, expected) as brain:
         from_scratch = brain.metadata is None
+        if from_scratch and brain_name == "apolo-v2":
+            raise FileNotFoundError(f"Copia do Apolo v2 nao encontrada: {brain.path}")
         initial_timesteps = 0 if from_scratch else int(brain.metadata["num_timesteps"])
         if not from_scratch:
             provenance["named_brain"] = {
@@ -97,7 +97,7 @@ def train(args, cfg: ProjectConfig):
             }
         atomic_json(run_dir / "run_config.json", {
             "run": run,
-            "brain": "apolo",
+            "brain": brain_name,
             "algorithm": "DQN",
             "contract": expected,
             "provenance": provenance,
@@ -140,7 +140,7 @@ def train(args, cfg: ProjectConfig):
                 reference = brain.metadata.get("provenance", {}).get("replay_buffer")
                 if reference is None:
                     raise ValueError(
-                        "O apolo.zip nao tem replay buffer registrado; retomada DQN recusada."
+                        f"O {brain.path.name} nao tem replay buffer registrado; retomada DQN recusada."
                     )
                 buffer_path = load_replay_buffer_snapshot(model, cfg.project_dir, reference)
                 print(f"RETOMADA APOLO DQN: Q/target/Adam e replay buffer preservados ({buffer_path}).", flush=True)
@@ -157,7 +157,7 @@ def train(args, cfg: ProjectConfig):
                 flush=True,
             )
             print(
-                "Hermes PPO permanece separado. O Apolo usa modelos/apolo.zip e um replay buffer proprio.",
+                f"Cerebro: {brain.path.resolve()} / replay buffer proprio.",
                 flush=True,
             )
             print(
@@ -182,7 +182,9 @@ def train(args, cfg: ProjectConfig):
             try:
                 if model is not None:
                     try:
-                        buffer_reference = save_replay_buffer_snapshot(model, cfg.project_dir, run)
+                        buffer_reference = save_replay_buffer_snapshot(
+                            model, cfg.project_dir, run, brain_name=brain.name
+                        )
                         final_provenance = _checkpoint_provenance(provenance, brain, buffer_reference)
                         final_provenance["dqn_update"] = {
                             "gradient_updates": int(model._n_updates),
@@ -201,7 +203,7 @@ def train(args, cfg: ProjectConfig):
                 atomic_json(run_dir / "status.json", {
                     "status": reason,
                     "algorithm": "DQN",
-                    "brain": "apolo",
+                    "brain": brain_name,
                     "timesteps": int(model.num_timesteps) if model else 0,
                     "trained_steps_this_run": max(
                         0, int(model.num_timesteps) - initial_timesteps

@@ -1,28 +1,32 @@
-# ROM e emulador: manter localmente, fora do GitHub
-assets/rom/
-emulator/
-
-# Recriar o ambiente Python em cada computador; nao copiar .venv
 .venv/
 __pycache__/
 *.py[cod]
 *.tmp
 *.writing.zip
 .pytest_cache/
-
-# Manter somente os tres modelos finais e seus contratos
+runs/
+emulator/
+assets/rom/
 models/*
 !models/apolo.zip
 !models/apolo.zip.json
+!models/apolo-v2.zip
+!models/apolo-v2.zip.json
 !models/ares.zip
 !models/ares.zip.json
 !models/hermes-ppo-3.zip
 !models/hermes-ppo-3.zip.json
-
-# Logs detalhados de execucao ficam locais; runs/ contem ~82.7 GiB
-runs/*
-!runs/diagnostics/
-!runs/diagnostics/LEIA-ME.txt
-
-# Snapshot local de v2 contem um modelo legado, fora dos tres modelos finais publicados.
-archive/source/TCC-TopGear-RL_v2.0.28-surface-fallback.zip
+!models/ares-a2c_20261027_201659_221094/
+models/ares-a2c_20261027_201659_221094/*
+!models/ares-a2c_20261027_201659_221094/named_update_1999280_steps.zip
+!models/ares-a2c_20261027_201659_221094/named_update_1999280_steps.zip.json
+!models/hermes-ppo-3_20261101_184607_628188/
+models/hermes-ppo-3_20261101_184607_628188/*
+!models/hermes-ppo-3_20261101_184607_628188/named_update_1999521_steps.zip
+!models/hermes-ppo-3_20261101_184607_628188/named_update_1999521_steps.zip.json
+!models/apolo-replay-buffers/
+models/apolo-replay-buffers/*
+!models/apolo-replay-buffers/apolo_1356716_bbe64bfcb17640d6.pkl
+!models/apolo-v2-replay-buffers/
+models/apolo-v2-replay-buffers/*
+!models/apolo-v2-replay-buffers/apolo-v2_2069245_8d52b48318c38c7c.pkl
